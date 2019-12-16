@@ -1,0 +1,50 @@
+FROM alpine:3.10.3
+
+ARG OPENCV_VERSION=4.1.2
+ENV LANG=C.UTF-8
+
+RUN apk add --update --no-cache \
+    # Build dependencies
+    libstdc++6 \
+    build-base clang clang-dev cmake pkgconf wget openblas openblas-dev \
+    linux-headers \
+    # Image IO packages
+    libjpeg-turbo libjpeg-turbo-dev \
+    libpng libpng-dev \
+    libwebp libwebp-dev \
+    # tiff tiff-dev \
+    # jpeg2000
+    jasper-libs jasper-dev \
+    # openexr openexr-dev \
+    python3 python3-dev \
+    musl && \
+    # Make Python3 as default
+    ln -vfs /usr/bin/python3 /usr/local/bin/python && \
+    ln -vfs /usr/bin/pip3 /usr/local/bin/pip && \
+    # Fix libpng path
+    ln -vfs /usr/include/libpng16 /usr/include/libpng && \
+    ln -vfs /usr/include/locale.h /usr/include/xlocale.h && \
+    pip3 install -v --no-cache-dir --upgrade pip && \
+    pip3 install -v --no-cache-dir numpy
+    # Download OpenCV source
+
+RUN apk add bash bash-completion lddtree
+
+RUN  mkdir /b &&  cd /b && \
+    wget https://github.com/opencv/opencv/archive/$OPENCV_VERSION.tar.gz && \
+    tar -xvzf $OPENCV_VERSION.tar.gz && \
+    rm -vrf $OPENCV_VERSION.tar.gz
+    # Configure
+RUN mkdir -vp /b/opencv-$OPENCV_VERSION/build && \
+    cd /b/opencv-$OPENCV_VERSION/build && \
+    cmake -DBUILD_LIST="core,imgproc,imgcodecs,python3"  \
+    -DCMAKE_BUILD_TYPE=RELEASE \
+        -DPYTHON3_LIBRARY=`find /usr -name libpython3.so` \
+        -DPYTHON_EXECUTABLE=`which python3` \
+        -DPYTHON3_EXECUTABLE=`which python3` \
+        -DCMAKE_INSTALL_PREFIX=/usr .. && \
+    # Build
+    make -j`grep -c '^processor' /proc/cpuinfo` && \
+    make install
+
+CMD ["bash"]
