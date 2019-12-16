@@ -1,7 +1,7 @@
 
 # Build OpenCV using alpine
 
-Build only you want opencv module, the image only **281MB** 
+Build only you want opencv module, the image only **192MB** 
 
 Including module *core,imgproc,imgcodecs,python3*
 
@@ -20,7 +20,7 @@ docker build -t alpine-opencv-py3 .
 
 Test (check output line.jpg)
 ```
-docker run -v ${PWD}:/app -t alpine-opencv-py3 python3 /app/test_draw_line.py  
+docker run -v ${PWD}:/app -t alpine-opencv-py3 python3 test_draw_line.py  
 ```
 
 ## Build Only You Want Module
