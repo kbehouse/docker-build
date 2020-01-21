@@ -9,3 +9,5 @@ FROM alpine
 RUN apk add --no-cache bash
 COPY --from=builder /go/src/app/nats.go/examples/nats-sub/sub /bin/sub
 COPY --from=builder /go/src/app/nats.go/examples/nats-pub/pub /bin/pub
+
+CMD ["/bin/sh"]
